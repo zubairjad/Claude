@@ -29,6 +29,8 @@
             --error: #f87171;
             --gray: #94a3b8;
             --gray-light: #e2e8f0;
+            --formula-bg: #f0f7ff;
+            --explanation-bg: #fffaf0;
         }
         
         body {
@@ -495,6 +497,131 @@
             margin-bottom: 5px;
         }
         
+        /* NEW STYLES FOR FORMULA AND EXPLANATION SECTIONS */
+        .formula-section {
+            background-color: var(--formula-bg);
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .formula-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .formula-header i {
+            font-size: 20px;
+        }
+        
+        .formula-content {
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        
+        .explanation-section {
+            background-color: var(--explanation-bg);
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .explanation-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            color: #e65100;
+            font-weight: 600;
+        }
+        
+        .explanation-header i {
+            font-size: 20px;
+        }
+        
+        .explanation-content ul {
+            padding-left: 25px;
+            margin: 15px 0;
+        }
+        
+        .explanation-content li {
+            margin-bottom: 8px;
+            position: relative;
+        }
+        
+        .explanation-content li:before {
+            content: "•";
+            color: #ff9800;
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+        
+        .example-section {
+            background-color: #f8f9ff;
+            border-left: 4px solid #8f94fb;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .example-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            color: #4e54c8;
+            font-weight: 600;
+        }
+        
+        .example-header i {
+            font-size: 20px;
+        }
+        
+        .example-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .example-table th, .example-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .example-table th {
+            background-color: #f0f4ff;
+            font-weight: 600;
+        }
+        
+        .example-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .example-table tr:hover {
+            background-color: #f8f9ff;
+        }
+        
         @media (max-width: 900px) {
             .sidebar {
                 display: none;
@@ -573,6 +700,9 @@
                     </button>
                     <button class="feature-btn" id="function-calling">
                         <i class="fas fa-cogs"></i> Function Calling
+                    </button>
+                    <button class="feature-btn" id="excel-formula">
+                        <i class="fas fa-file-excel"></i> Excel Formula
                     </button>
                 </div>
                 
@@ -1021,6 +1151,95 @@ puter.ai.chat("What's the weather in Tokyo?", {
                 
                 // Process code blocks
                 processCodeBlocks(contentElement);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            });
+            
+            // Excel formula example with improved formatting
+            document.getElementById('excel-formula').addEventListener('click', function() {
+                const content = `
+                    <p>You can use this Excel formula to convert "JSN-YG-20-60" to "H-20-60-K":</p>
+                    
+                    <div class="formula-section">
+                        <div class="formula-header">
+                            <i class="fas fa-calculator"></i>
+                            <span>Formula Solution</span>
+                        </div>
+                        <div class="formula-content">
+                            ="H-"&MID(A1,8,2)&"-"&RIGHT(A1,2)&"-K"
+                        </div>
+                    </div>
+                    
+                    <div class="explanation-section">
+                        <div class="explanation-header">
+                            <i class="fas fa-lightbulb"></i>
+                            <span>How It Works</span>
+                        </div>
+                        <div class="explanation-content">
+                            <ul>
+                                <li><code>"H-"</code> - adds the literal "H-" at the beginning</li>
+                                <li><code>MID(A1,8,2)</code> - extracts 2 characters starting from position 8 (gets "20")</li>
+                                <li><code>"-"</code> - adds a hyphen separator</li>
+                                <li><code>RIGHT(A1,2)</code> - extracts the last 2 characters (gets "60")</li>
+                                <li><code>"-K"</code> - adds the literal "-K" at the end</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="example-section">
+                        <div class="example-header">
+                            <i class="fas fa-table"></i>
+                            <span>Example Transformation</span>
+                        </div>
+                        <table class="example-table">
+                            <thead>
+                                <tr>
+                                    <th>Original Value</th>
+                                    <th>Converted Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>JSN-YG-20-60</td>
+                                    <td>H-20-60-K</td>
+                                </tr>
+                                <tr>
+                                    <td>ABC-XY-30-45</td>
+                                    <td>H-30-45-K</td>
+                                </tr>
+                                <tr>
+                                    <td>DEF-ZW-15-75</td>
+                                    <td>H-15-75-K</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="formula-section">
+                        <div class="formula-header">
+                            <i class="fas fa-exchange-alt"></i>
+                            <span>Alternative Formula</span>
+                        </div>
+                        <div class="formula-content">
+                            ="H-"&TRIM(MID(SUBSTITUTE(A1,"-",REPT(" ",10)),21,10)&"-"&TRIM(MID(SUBSTITUTE(A1,"-",REPT(" ",10)),31,10)&"-K"
+                        </div>
+                        <p class="explanation-content">This alternative uses text splitting for more flexible parsing.</p>
+                    </div>
+                    
+                    <div class="formula-section">
+                        <div class="formula-header">
+                            <i class="fas fa-code"></i>
+                            <span>Concatenation Formula</span>
+                        </div>
+                        <div class="formula-content">
+                            =CONCATENATE("H-",MID(A1,8,2),"-",RIGHT(A1,2),"-K")
+                        </div>
+                        <p class="explanation-content">This approach uses the CONCATENATE function for clarity.</p>
+                    </div>
+                    
+                    <p><strong>Note:</strong> Replace <code>A1</code> with the cell reference containing your original code.</p>
+                `;
+                
+                addMessageToChat(content, false);
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             });
             

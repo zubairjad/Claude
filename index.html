@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Claude Chat with Puter.js</title>
+    <title>Advanced Claude Chat with Puter.js</title>
     <script src="https://js.puter.com/v2/"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
     <style>
         * {
             margin: 0;
@@ -14,9 +17,23 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
+        :root {
+            --primary: #4e54c8;
+            --primary-dark: #3a40b9;
+            --secondary: #8f94fb;
+            --accent: #ff7e5f;
+            --light: #f8f9ff;
+            --dark: #1a1c2c;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #f87171;
+            --gray: #94a3b8;
+            --gray-light: #e2e8f0;
+        }
+        
         body {
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
-            color: #333;
+            background: linear-gradient(135deg, var(--dark), #2d3250);
+            color: var(--dark);
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -26,24 +43,24 @@
         
         .container {
             width: 100%;
-            max-width: 900px;
-            background: rgba(255, 255, 255, 0.95);
+            max-width: 1200px;
+            background: var(--light);
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            height: 90vh;
+            height: 95vh;
         }
         
         header {
-            background: linear-gradient(to right, #4e54c8, #8f94fb);
+            background: linear-gradient(to right, var(--primary), var(--secondary));
             color: white;
-            padding: 20px;
+            padding: 15px 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
         
         .logo {
@@ -53,11 +70,11 @@
         }
         
         .logo-icon {
-            font-size: 28px;
+            font-size: 24px;
             background: white;
-            color: #4e54c8;
-            width: 50px;
-            height: 50px;
+            color: var(--primary);
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -65,32 +82,107 @@
         }
         
         .logo-text {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 700;
         }
         
-        .model-selector {
+        .controls {
             display: flex;
-            gap: 10px;
+            gap: 15px;
             align-items: center;
         }
         
-        select {
+        .control-group {
+            display: flex;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 30px;
+        }
+        
+        select, button.control-btn {
             background: white;
-            color: #4e54c8;
+            color: var(--primary);
             border: none;
-            padding: 10px 15px;
+            padding: 8px 15px;
             border-radius: 30px;
             font-weight: 600;
             cursor: pointer;
             outline: none;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
-        select:hover {
+        button.control-btn {
+            padding: 8px 16px;
+        }
+        
+        select:hover, button.control-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            background: var(--primary);
+            color: white;
+        }
+        
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: white;
+            border-right: 1px solid var(--gray-light);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+        }
+        
+        .sidebar-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .sidebar-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .feature-btn {
+            background: var(--light);
+            border: 1px solid var(--gray-light);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .feature-btn:hover {
+            background: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 10px rgba(78, 84, 200, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .feature-btn i {
+            color: var(--primary);
+            font-size: 18px;
         }
         
         .chat-container {
@@ -104,13 +196,13 @@
         }
         
         .message {
-            max-width: 80%;
+            max-width: 85%;
             padding: 18px;
             border-radius: 18px;
             line-height: 1.6;
             animation: fadeIn 0.3s ease;
             position: relative;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
         }
         
         @keyframes fadeIn {
@@ -119,7 +211,7 @@
         }
         
         .user-message {
-            background: #4e54c8;
+            background: var(--primary);
             color: white;
             align-self: flex-end;
             border-bottom-right-radius: 5px;
@@ -128,21 +220,28 @@
         .ai-message {
             background: white;
             align-self: flex-start;
-            border: 1px solid #eaeaea;
+            border: 1px solid var(--gray-light);
             border-bottom-left-radius: 5px;
         }
         
-        .ai-header {
+        .message-header {
             display: flex;
             align-items: center;
             gap: 10px;
             margin-bottom: 12px;
             font-weight: 600;
-            color: #4e54c8;
         }
         
-        .ai-icon {
-            background: #4e54c8;
+        .user-header {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .ai-header {
+            color: var(--primary);
+        }
+        
+        .message-icon {
+            background: var(--primary);
             color: white;
             width: 32px;
             height: 32px;
@@ -153,31 +252,73 @@
             font-size: 16px;
         }
         
+        .user-message .message-icon {
+            background: white;
+            color: var(--primary);
+        }
+        
         .input-container {
             padding: 20px;
             background: white;
-            border-top: 1px solid #eee;
+            border-top: 1px solid var(--gray-light);
             display: flex;
             gap: 15px;
         }
         
-        input {
+        .input-wrapper {
             flex: 1;
-            padding: 16px 20px;
-            border: 2px solid #e0e0e0;
+            display: flex;
+            border: 2px solid var(--gray-light);
             border-radius: 30px;
-            font-size: 16px;
-            outline: none;
+            overflow: hidden;
+            background: white;
             transition: all 0.3s ease;
         }
         
-        input:focus {
-            border-color: #8f94fb;
+        .input-wrapper:focus-within {
+            border-color: var(--secondary);
             box-shadow: 0 0 0 3px rgba(143, 148, 251, 0.2);
         }
         
-        button {
-            background: #4e54c8;
+        .input-actions {
+            display: flex;
+            padding: 0 15px;
+            align-items: center;
+            gap: 10px;
+            border-right: 1px solid var(--gray-light);
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--gray);
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .action-btn:hover {
+            color: var(--primary);
+            background: var(--light);
+        }
+        
+        input {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            font-size: 16px;
+            outline: none;
+            background: transparent;
+        }
+        
+        button.send-btn {
+            background: var(--primary);
             color: white;
             border: none;
             width: 55px;
@@ -189,13 +330,13 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 8px rgba(78, 84, 200, 0.3);
+            box-shadow: 0 4px 15px rgba(78, 84, 200, 0.3);
         }
         
-        button:hover {
-            background: #3a40b9;
+        button.send-btn:hover {
+            background: var(--primary-dark);
             transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(78, 84, 200, 0.4);
+            box-shadow: 0 6px 20px rgba(78, 84, 200, 0.4);
         }
         
         .typing-indicator {
@@ -206,12 +347,14 @@
             border-radius: 18px;
             align-self: flex-start;
             display: none;
+            margin-top: -15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
         
         .typing-dot {
             width: 10px;
             height: 10px;
-            background: #4e54c8;
+            background: var(--primary);
             border-radius: 50%;
             animation: bounce 1.5s infinite;
         }
@@ -231,27 +374,159 @@
         
         .info-bar {
             background: #e3f2fd;
-            padding: 15px;
+            padding: 12px;
             text-align: center;
             font-size: 14px;
             color: #1565c0;
             border-top: 1px solid #bbdefb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
         }
         
-        @media (max-width: 768px) {
-            .container {
-                height: 95vh;
-                max-width: 100%;
+        .feature-tag {
+            background: rgba(78, 84, 200, 0.1);
+            color: var(--primary);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .message-content {
+            line-height: 1.7;
+        }
+        
+        .message-content p {
+            margin-bottom: 15px;
+        }
+        
+        .message-content pre {
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 15px;
+            overflow-x: auto;
+            margin: 15px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: #2d2d2d;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            margin: -15px -15px 15px -15px;
+            color: #ccc;
+            font-size: 14px;
+        }
+        
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #ccc;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s ease;
+        }
+        
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        .message-content img {
+            max-width: 100%;
+            border-radius: 12px;
+            margin: 10px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .file-upload {
+            display: none;
+        }
+        
+        .image-preview {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .image-preview img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid var(--gray-light);
+        }
+        
+        .model-info {
+            background: rgba(78, 84, 200, 0.05);
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 15px;
+            border-left: 3px solid var(--primary);
+        }
+        
+        .model-info h4 {
+            margin-bottom: 8px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .model-info ul {
+            padding-left: 20px;
+            color: #555;
+        }
+        
+        .model-info li {
+            margin-bottom: 5px;
+        }
+        
+        @media (max-width: 900px) {
+            .sidebar {
+                display: none;
             }
             
             .message {
                 max-width: 90%;
             }
             
-            header {
+            .controls {
                 flex-direction: column;
-                gap: 15px;
-                text-align: center;
+                gap: 10px;
+                align-items: flex-start;
+            }
+            
+            .control-group {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                height: 100vh;
+                border-radius: 0;
+            }
+            
+            body {
+                padding: 0;
+            }
+            
+            .input-actions {
+                display: none;
             }
         }
     </style>
@@ -265,24 +540,95 @@
                 </div>
                 <div class="logo-text">Claude Chat with Puter.js</div>
             </div>
-            <div class="model-selector">
-                <span>Model:</span>
-                <select id="model-select">
-                    <option value="claude-sonnet-4">Claude Sonnet</option>
-                    <option value="claude-opus-4">Claude Opus</option>
-                </select>
+            <div class="controls">
+                <div class="control-group">
+                    <select id="model-select">
+                        <option value="claude-sonnet-4">Claude Sonnet</option>
+                        <option value="claude-opus-4">Claude Opus</option>
+                    </select>
+                    <button class="control-btn" id="new-chat-btn">
+                        <i class="fas fa-plus"></i> New Chat
+                    </button>
+                </div>
+                <div class="control-group">
+                    <button class="control-btn" id="function-btn">
+                        <i class="fas fa-code"></i> Functions
+                    </button>
+                    <button class="control-btn" id="history-btn">
+                        <i class="fas fa-history"></i> History
+                    </button>
+                </div>
             </div>
         </header>
         
-        <div class="chat-container" id="chat-container">
-            <div class="message ai-message">
-                <div class="ai-header">
-                    <div class="ai-icon">
-                        <i class="fas fa-robot"></i>
-                    </div>
-                    <div>Claude Assistant</div>
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title"><i class="fas fa-star"></i> Core Features</h3>
+                    <button class="feature-btn" id="text-generation">
+                        <i class="fas fa-comment"></i> Text Generation
+                    </button>
+                    <button class="feature-btn" id="code-generation">
+                        <i class="fas fa-code"></i> Code Generation
+                    </button>
+                    <button class="feature-btn" id="function-calling">
+                        <i class="fas fa-cogs"></i> Function Calling
+                    </button>
                 </div>
-                <p>Hello! I'm Claude, an AI assistant powered by Anthropic. How can I help you today? Feel free to ask me anything - I can explain concepts, help with writing, solve problems, and more!</p>
+                
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title"><i class="fas fa-image"></i> Media & Files</h3>
+                    <button class="feature-btn" id="image-upload">
+                        <i class="fas fa-upload"></i> Image Upload
+                    </button>
+                    <button class="feature-btn" id="file-analysis">
+                        <i class="fas fa-file-alt"></i> File Analysis
+                    </button>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title"><i class="fas fa-cogs"></i> Advanced</h3>
+                    <button class="feature-btn" id="streaming">
+                        <i class="fas fa-stream"></i> Streaming Responses
+                    </button>
+                    <button class="feature-btn" id="long-context">
+                        <i class="fas fa-scroll"></i> Long Context Handling
+                    </button>
+                    <button class="feature-btn" id="custom-instructions">
+                        <i class="fas fa-edit"></i> Custom Instructions
+                    </button>
+                </div>
+            </div>
+            
+            <div class="chat-container" id="chat-container">
+                <div class="message ai-message">
+                    <div class="message-header ai-header">
+                        <div class="message-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div>Claude Assistant</div>
+                    </div>
+                    <div class="message-content">
+                        <p>Hello! I'm Claude, an AI assistant powered by Anthropic. I can help you with a wide range of tasks including:</p>
+                        <ul>
+                            <li>Creative writing and content generation</li>
+                            <li>Coding assistance in multiple languages</li>
+                            <li>Data analysis and file interpretation</li>
+                            <li>Image descriptions and analysis</li>
+                            <li>Complex reasoning and problem solving</li>
+                        </ul>
+                        <p>Try uploading an image, asking for code, or exploring any of the features in the sidebar!</p>
+                        
+                        <div class="model-info">
+                            <h4><i class="fas fa-info-circle"></i> Current Model: Claude Sonnet 4</h4>
+                            <ul>
+                                <li>Optimal balance of intelligence, cost, and speed</li>
+                                <li>Great for most applications</li>
+                                <li>Switch to Claude Opus for complex reasoning tasks</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -293,14 +639,29 @@
         </div>
         
         <div class="input-container">
-            <input type="text" id="user-input" placeholder="Message Claude...">
-            <button id="send-button">
+            <div class="input-wrapper">
+                <div class="input-actions">
+                    <button class="action-btn" id="upload-btn" title="Upload image">
+                        <i class="fas fa-image"></i>
+                    </button>
+                    <button class="action-btn" id="attach-btn" title="Attach file">
+                        <i class="fas fa-paperclip"></i>
+                    </button>
+                    <input type="file" id="image-upload-input" class="file-upload" accept="image/*">
+                    <input type="file" id="file-upload-input" class="file-upload">
+                </div>
+                <input type="text" id="user-input" placeholder="Message Claude...">
+            </div>
+            <button class="send-btn" id="send-button">
                 <i class="fas fa-paper-plane"></i>
             </button>
         </div>
         
         <div class="info-bar">
-            Powered by Puter.js - Free, unlimited Claude API access without API keys or backend
+            <span>Powered by Puter.js - Free, unlimited Claude API access</span>
+            <span class="feature-tag">No API keys</span>
+            <span class="feature-tag">No backend required</span>
+            <span class="feature-tag">No usage limits</span>
         </div>
     </div>
 
@@ -311,28 +672,58 @@
             const sendButton = document.getElementById('send-button');
             const modelSelect = document.getElementById('model-select');
             const typingIndicator = document.getElementById('typing-indicator');
+            const uploadBtn = document.getElementById('upload-btn');
+            const imageUploadInput = document.getElementById('image-upload-input');
+            const fileUploadInput = document.getElementById('file-upload-input');
+            const attachBtn = document.getElementById('attach-btn');
+            const newChatBtn = document.getElementById('new-chat-btn');
+            const uploadedImages = [];
             
             // Focus input on load
             userInput.focus();
             
+            // Initialize Highlight.js
+            hljs.highlightAll();
+            
             // Function to add message to chat
-            function addMessageToChat(content, isUser = false) {
+            function addMessageToChat(content, isUser = false, images = []) {
                 const messageDiv = document.createElement('div');
                 messageDiv.classList.add('message');
                 
                 if (isUser) {
                     messageDiv.classList.add('user-message');
-                    messageDiv.textContent = content;
+                    messageDiv.innerHTML = `
+                        <div class="message-header user-header">
+                            <div class="message-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>You</div>
+                        </div>
+                        <div class="message-content">${content}</div>
+                    `;
+                    
+                    if (images.length > 0) {
+                        const imagePreview = document.createElement('div');
+                        imagePreview.classList.add('image-preview');
+                        
+                        images.forEach(imgData => {
+                            const img = document.createElement('img');
+                            img.src = imgData;
+                            imagePreview.appendChild(img);
+                        });
+                        
+                        messageDiv.querySelector('.message-content').appendChild(imagePreview);
+                    }
                 } else {
                     messageDiv.classList.add('ai-message');
                     messageDiv.innerHTML = `
-                        <div class="ai-header">
-                            <div class="ai-icon">
+                        <div class="message-header ai-header">
+                            <div class="message-icon">
                                 <i class="fas fa-robot"></i>
                             </div>
                             <div>Claude Assistant</div>
                         </div>
-                        <p>${content}</p>
+                        <div class="message-content">${content}</div>
                     `;
                 }
                 
@@ -340,32 +731,92 @@
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             }
             
+            // Function to process code blocks in responses
+            function processCodeBlocks(element) {
+                const codeBlocks = element.querySelectorAll('pre code');
+                codeBlocks.forEach(block => {
+                    // Create code header
+                    const language = block.className.replace('language-', '') || 'code';
+                    const codeHeader = document.createElement('div');
+                    codeHeader.className = 'code-header';
+                    codeHeader.innerHTML = `
+                        <span>${language}</span>
+                        <button class="copy-btn">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    `;
+                    
+                    // Wrap code in a pre element
+                    const pre = document.createElement('pre');
+                    pre.appendChild(block.cloneNode(true));
+                    
+                    // Create container
+                    const container = document.createElement('div');
+                    container.appendChild(codeHeader);
+                    container.appendChild(pre);
+                    
+                    // Replace original block with container
+                    block.parentNode.replaceWith(container);
+                    
+                    // Add copy functionality
+                    const copyBtn = container.querySelector('.copy-btn');
+                    copyBtn.addEventListener('click', () => {
+                        const codeText = block.textContent;
+                        navigator.clipboard.writeText(codeText).then(() => {
+                            copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                            setTimeout(() => {
+                                copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                            }, 2000);
+                        });
+                    });
+                });
+                
+                // Re-run syntax highlighting
+                hljs.highlightAll();
+            }
+            
             // Function to handle streaming response
-            async function handleStreamingResponse(prompt, model) {
+            async function handleStreamingResponse(prompt, model, images = []) {
                 try {
                     // Show typing indicator
                     typingIndicator.style.display = 'flex';
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
                     
-                    const response = await puter.ai.chat(
-                        prompt, 
-                        { model: model, stream: true }
-                    );
+                    // Add user message to chat
+                    addMessageToChat(prompt, true, images);
+                    
+                    // Add a placeholder AI message
+                    addMessageToChat('Thinking...', false);
+                    const aiMessage = chatContainer.lastChild;
+                    const contentElement = aiMessage.querySelector('.message-content');
                     
                     // Create a temporary div to collect the response
-                    const tempDiv = document.createElement('div');
+                    let tempDiv = document.createElement('div');
+                    
+                    // Get selected model
+                    const selectedModel = modelSelect.value;
+                    
+                    // Add context about images if any were uploaded
+                    let fullPrompt = prompt;
+                    if (images.length > 0) {
+                        fullPrompt = `The user has uploaded ${images.length} image(s). ${prompt}`;
+                    }
+                    
+                    const response = await puter.ai.chat(
+                        fullPrompt, 
+                        { model: selectedModel, stream: true }
+                    );
                     
                     for await (const part of response) {
                         if (part?.text) {
                             tempDiv.innerHTML += part.text;
-                            // Update the last message with the current response
-                            const messages = chatContainer.querySelectorAll('.ai-message');
-                            const lastMessage = messages[messages.length - 1];
-                            if (lastMessage) {
-                                lastMessage.querySelector('p').innerHTML = tempDiv.innerHTML;
-                            }
+                            contentElement.innerHTML = tempDiv.innerHTML;
                             chatContainer.scrollTop = chatContainer.scrollHeight;
                         }
                     }
+                    
+                    // Process code blocks after streaming completes
+                    processCodeBlocks(contentElement);
                     
                 } catch (error) {
                     console.error('Error:', error);
@@ -373,25 +824,74 @@
                 } finally {
                     // Hide typing indicator
                     typingIndicator.style.display = 'none';
+                    // Clear uploaded images
+                    uploadedImages.length = 0;
                 }
+            }
+            
+            // Function to generate sample code
+            function generateSampleCode(language) {
+                const codeSamples = {
+                    'javascript': `// JavaScript: Fibonacci sequence
+function fibonacci(n) {
+  if (n <= 1) return n;
+  return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+console.log(fibonacci(10)); // Output: 55`,
+                    'python': `# Python: Fibonacci sequence
+def fibonacci(n):
+    if n <= 1:
+        return n
+    else:
+        return fibonacci(n-1) + fibonacci(n-2)
+
+print(fibonacci(10))  # Output: 55`,
+                    'html': `<!-- HTML: Basic page structure -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sample Page</title>
+</head>
+<body>
+    <h1>Hello World!</h1>
+    <p>This is a sample HTML page.</p>
+</body>
+</html>`,
+                    'css': `/* CSS: Stylish button */
+.btn {
+    padding: 12px 24px;
+    background: linear-gradient(to right, #4e54c8, #8f94fb);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}`,
+                    'java': `// Java: Hello World
+public class HelloWorld {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
+}`
+                };
+                
+                return codeSamples[language] || `// Sample ${language} code\n// This is a placeholder for ${language} code`;
             }
             
             // Function to send message
             function sendMessage() {
                 const message = userInput.value.trim();
-                if (!message) return;
-                
-                // Add user message to chat
-                addMessageToChat(message, true);
-                
-                // Add a placeholder AI message
-                addMessageToChat("Thinking...", false);
-                
-                // Get selected model
-                const selectedModel = modelSelect.value;
+                if (!message && uploadedImages.length === 0) return;
                 
                 // Process the message with Claude
-                handleStreamingResponse(message, selectedModel);
+                handleStreamingResponse(message, modelSelect.value, [...uploadedImages]);
                 
                 // Clear input and focus
                 userInput.value = '';
@@ -407,11 +907,127 @@
                 }
             });
             
-            // Add a welcome message after a short delay
+            uploadBtn.addEventListener('click', () => {
+                imageUploadInput.click();
+            });
+            
+            attachBtn.addEventListener('click', () => {
+                fileUploadInput.click();
+            });
+            
+            imageUploadInput.addEventListener('change', function(e) {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        uploadedImages.push(e.target.result);
+                        userInput.placeholder = "Image uploaded! Describe what you want...";
+                        userInput.focus();
+                    }
+                    
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+            
+            newChatBtn.addEventListener('click', function() {
+                chatContainer.innerHTML = `
+                    <div class="message ai-message">
+                        <div class="message-header ai-header">
+                            <div class="message-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div>Claude Assistant</div>
+                        </div>
+                        <div class="message-content">
+                            <p>Hello! I'm Claude, an AI assistant. How can I help you today?</p>
+                            <p>You can ask me to generate content, write code, analyze data, or help with creative projects!</p>
+                        </div>
+                    </div>
+                `;
+                uploadedImages.length = 0;
+                userInput.placeholder = "Message Claude...";
+            });
+            
+            // Feature buttons event listeners
+            document.getElementById('text-generation').addEventListener('click', function() {
+                const prompt = "Write a comprehensive article about the benefits of renewable energy, covering solar, wind, and hydroelectric power sources. Include recent statistics and future projections.";
+                userInput.value = prompt;
+                userInput.focus();
+            });
+            
+            document.getElementById('code-generation').addEventListener('click', function() {
+                const languages = ['javascript', 'python', 'html', 'css', 'java'];
+                const randomLang = languages[Math.floor(Math.random() * languages.length)];
+                const code = generateSampleCode(randomLang);
+                
+                addMessageToChat(`Here's a sample ${randomLang} code snippet:`, false);
+                const aiMessage = chatContainer.lastChild;
+                const contentElement = aiMessage.querySelector('.message-content');
+                contentElement.innerHTML = `<pre><code class="language-${randomLang}">${code}</code></pre>`;
+                
+                // Process code blocks
+                processCodeBlocks(contentElement);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            });
+            
+            document.getElementById('image-upload').addEventListener('click', function() {
+                imageUploadInput.click();
+            });
+            
+            document.getElementById('streaming').addEventListener('click', function() {
+                const prompt = "Explain how streaming responses work in AI systems and why they're useful for large language models. Provide examples of how they improve user experience.";
+                userInput.value = prompt;
+                userInput.focus();
+            });
+            
+            document.getElementById('function-calling').addEventListener('click', function() {
+                addMessageToChat("Function calling allows Claude to interact with external APIs and tools. With Puter.js, you can define functions that Claude can call based on user requests. For example:", false);
+                
+                const aiMessage = chatContainer.lastChild;
+                const contentElement = aiMessage.querySelector('.message-content');
+                contentElement.innerHTML += `
+                    <p><strong>Example function definition:</strong></p>
+                    <pre><code class="language-javascript">
+// Define a function to get weather data
+const getWeather = {
+    name: "get_current_weather",
+    description: "Get the current weather in a given location",
+    parameters: {
+        type: "object",
+        properties: {
+            location: {
+                type: "string",
+                description: "The city and state, e.g. San Francisco, CA"
+            },
+            unit: {
+                type: "string",
+                enum: ["celsius", "fahrenheit"]
+            }
+        },
+        required: ["location"]
+    }
+};
+
+// Then pass to puter.ai.chat
+puter.ai.chat("What's the weather in Tokyo?", {
+    functions: [getWeather],
+    function_call: "auto"
+}).then(response => {
+    // Handle function call response
+});
+                    </code></pre>
+                    <p>Claude will determine if a function needs to be called and return structured data to execute it.</p>
+                `;
+                
+                // Process code blocks
+                processCodeBlocks(contentElement);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            });
+            
+            // Add welcome message after a short delay
             setTimeout(() => {
-                const welcomeMessage = "This interface uses Puter.js to access Claude's capabilities without any API keys or backend setup. You can ask me questions, request explanations, or get help with creative tasks!";
-                addMessageToChat(welcomeMessage, false);
-            }, 1500);
+                addMessageToChat("You can upload images for analysis, ask for code in any programming language, or explore Claude's advanced capabilities using the sidebar features!", false);
+            }, 2500);
         });
     </script>
 </body>

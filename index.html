@@ -622,6 +622,101 @@
             background-color: #f8f9ff;
         }
         
+        /* NEW FILE PREVIEW STYLES */
+        .file-preview-container {
+            padding: 10px 20px;
+            background: white;
+            border-top: 1px solid var(--gray-light);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        
+        .file-preview {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .file-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .file-preview .file-icon {
+            width: 100%;
+            height: 100%;
+            background: #f0f4ff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: var(--primary);
+            font-size: 12px;
+            text-align: center;
+            padding: 5px;
+        }
+        
+        .file-preview .file-icon i {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .remove-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255, 255, 255, 0.8);
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--error);
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .remove-btn:hover {
+            background: var(--error);
+            color: white;
+        }
+        
+        .file-name {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            font-size: 10px;
+            padding: 3px;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .file-info {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            font-size: 9px;
+            padding: 2px 5px;
+            border-radius: 10px;
+        }
+        
         @media (max-width: 900px) {
             .sidebar {
                 display: none;
@@ -654,6 +749,11 @@
             
             .input-actions {
                 display: none;
+            }
+            
+            .file-preview {
+                width: 80px;
+                height: 80px;
             }
         }
     </style>
@@ -747,7 +847,7 @@
                             <li>Image descriptions and analysis</li>
                             <li>Complex reasoning and problem solving</li>
                         </ul>
-                        <p>Try uploading an image, asking for code, or exploring any of the features in the sidebar!</p>
+                        <p>Try uploading an image or file using the upload buttons below!</p>
                         
                         <div class="model-info">
                             <h4><i class="fas fa-info-circle"></i> Current Model: Claude Sonnet 4</h4>
@@ -759,7 +859,68 @@
                         </div>
                     </div>
                 </div>
+                
+                <div class="message user-message">
+                    <div class="message-header user-header">
+                        <div class="message-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>You</div>
+                    </div>
+                    <div class="message-content">
+                        <p>Here are some files I'd like to analyze:</p>
+                        <div class="image-preview">
+                            <div class="file-preview">
+                                <img src="https://images.unsplash.com/photo-1575936123452-b67c3203c357?auto=format&fit=crop&w=200" alt="Sample Image">
+                                <div class="file-info">1.2 MB</div>
+                                <div class="file-name">landscape.jpg</div>
+                                <button class="remove-btn"><i class="fas fa-times"></i></button>
+                            </div>
+                            <div class="file-preview">
+                                <div class="file-icon">
+                                    <i class="fas fa-file-pdf"></i>
+                                    <span>Report.pdf</span>
+                                </div>
+                                <div class="file-info">850 KB</div>
+                                <div class="file-name">report.pdf</div>
+                                <button class="remove-btn"><i class="fas fa-times"></i></button>
+                            </div>
+                            <div class="file-preview">
+                                <div class="file-icon">
+                                    <i class="fas fa-file-excel"></i>
+                                    <span>Data.xlsx</span>
+                                </div>
+                                <div class="file-info">320 KB</div>
+                                <div class="file-name">data.xlsx</div>
+                                <button class="remove-btn"><i class="fas fa-times"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="message ai-message">
+                    <div class="message-header ai-header">
+                        <div class="message-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div>Claude Assistant</div>
+                    </div>
+                    <div class="message-content">
+                        <p>I see you've uploaded 3 files: a landscape image, a PDF report, and an Excel spreadsheet. How can I assist you with these?</p>
+                        <p>I can:</p>
+                        <ul>
+                            <li>Describe the contents of the image</li>
+                            <li>Summarize the PDF document</li>
+                            <li>Analyze data from the Excel file</li>
+                            <li>Compare information across files</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
+        </div>
+        
+        <div class="file-preview-container" id="file-preview-container">
+            <!-- File previews will be added here dynamically -->
         </div>
         
         <div class="typing-indicator" id="typing-indicator">
@@ -777,8 +938,8 @@
                     <button class="action-btn" id="attach-btn" title="Attach file">
                         <i class="fas fa-paperclip"></i>
                     </button>
-                    <input type="file" id="image-upload-input" class="file-upload" accept="image/*">
-                    <input type="file" id="file-upload-input" class="file-upload">
+                    <input type="file" id="image-upload-input" class="file-upload" accept="image/*" multiple>
+                    <input type="file" id="file-upload-input" class="file-upload" multiple>
                 </div>
                 <input type="text" id="user-input" placeholder="Message Claude...">
             </div>
@@ -792,6 +953,7 @@
             <span class="feature-tag">No API keys</span>
             <span class="feature-tag">No backend required</span>
             <span class="feature-tag">No usage limits</span>
+            <span class="feature-tag">Multi-file upload</span>
         </div>
     </div>
 
@@ -807,7 +969,8 @@
             const fileUploadInput = document.getElementById('file-upload-input');
             const attachBtn = document.getElementById('attach-btn');
             const newChatBtn = document.getElementById('new-chat-btn');
-            const uploadedImages = [];
+            const filePreviewContainer = document.getElementById('file-preview-container');
+            const uploadedFiles = [];
             
             // Focus input on load
             userInput.focus();
@@ -955,7 +1118,9 @@
                     // Hide typing indicator
                     typingIndicator.style.display = 'none';
                     // Clear uploaded images
-                    uploadedImages.length = 0;
+                    uploadedFiles.length = 0;
+                    // Clear file previews
+                    filePreviewContainer.innerHTML = '';
                 }
             }
             
@@ -1015,13 +1180,143 @@ public class HelloWorld {
                 return codeSamples[language] || `// Sample ${language} code\n// This is a placeholder for ${language} code`;
             }
             
+            // Function to get file icon based on file type
+            function getFileIcon(type) {
+                const fileIcons = {
+                    'pdf': 'file-pdf',
+                    'doc': 'file-word',
+                    'docx': 'file-word',
+                    'xls': 'file-excel',
+                    'xlsx': 'file-excel',
+                    'ppt': 'file-powerpoint',
+                    'pptx': 'file-powerpoint',
+                    'txt': 'file-alt',
+                    'zip': 'file-archive',
+                    'rar': 'file-archive',
+                    'jpg': 'file-image',
+                    'jpeg': 'file-image',
+                    'png': 'file-image',
+                    'gif': 'file-image',
+                    'mp3': 'file-audio',
+                    'wav': 'file-audio',
+                    'mp4': 'file-video',
+                    'mov': 'file-video'
+                };
+                
+                const extension = type.split('/').pop();
+                const icon = fileIcons[extension] || 'file';
+                return `fas fa-${icon}`;
+            }
+            
+            // Function to format file size
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+            }
+            
+            // Function to create file preview
+            function createFilePreview(file, dataUrl = null) {
+                const preview = document.createElement('div');
+                preview.classList.add('file-preview');
+                
+                const fileName = file.name;
+                const fileType = file.type;
+                const fileSize = formatFileSize(file.size);
+                const fileExtension = fileName.split('.').pop().toLowerCase();
+                
+                if (fileType.startsWith('image/') && dataUrl) {
+                    preview.innerHTML = `
+                        <img src="${dataUrl}" alt="${fileName}">
+                        <div class="file-info">${fileSize}</div>
+                        <div class="file-name">${fileName}</div>
+                        <button class="remove-btn"><i class="fas fa-times"></i></button>
+                    `;
+                } else {
+                    const iconClass = getFileIcon(fileExtension);
+                    preview.innerHTML = `
+                        <div class="file-icon">
+                            <i class="${iconClass}"></i>
+                            <span>${fileName}</span>
+                        </div>
+                        <div class="file-info">${fileSize}</div>
+                        <div class="file-name">${fileName}</div>
+                        <button class="remove-btn"><i class="fas fa-times"></i></button>
+                    `;
+                }
+                
+                // Add remove event
+                const removeBtn = preview.querySelector('.remove-btn');
+                removeBtn.addEventListener('click', () => {
+                    const index = uploadedFiles.findIndex(f => f.name === file.name);
+                    if (index !== -1) {
+                        uploadedFiles.splice(index, 1);
+                    }
+                    preview.remove();
+                    
+                    // Update placeholder if no files are left
+                    if (uploadedFiles.length === 0) {
+                        userInput.placeholder = "Message Claude...";
+                    }
+                });
+                
+                return preview;
+            }
+            
+            // Function to handle file uploads
+            function handleFileUpload(files) {
+                if (!files || files.length === 0) return;
+                
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    
+                    // Check if file already exists
+                    if (uploadedFiles.some(f => f.name === file.name)) {
+                        continue;
+                    }
+                    
+                    uploadedFiles.push(file);
+                    
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const preview = createFilePreview(file, e.target.result);
+                            filePreviewContainer.appendChild(preview);
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        const preview = createFilePreview(file);
+                        filePreviewContainer.appendChild(preview);
+                    }
+                }
+                
+                // Update placeholder
+                if (uploadedFiles.length > 0) {
+                    userInput.placeholder = "Type your message...";
+                }
+            }
+            
             // Function to send message
             function sendMessage() {
                 const message = userInput.value.trim();
-                if (!message && uploadedImages.length === 0) return;
+                if (!message && uploadedFiles.length === 0) return;
+                
+                // Collect image data URLs
+                const imageDataUrls = [];
+                for (const file of uploadedFiles) {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            imageDataUrls.push(e.target.result);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                }
                 
                 // Process the message with Claude
-                handleStreamingResponse(message, modelSelect.value, [...uploadedImages]);
+                handleStreamingResponse(message, modelSelect.value, imageDataUrls);
                 
                 // Clear input and focus
                 userInput.value = '';
@@ -1046,17 +1341,13 @@ public class HelloWorld {
             });
             
             imageUploadInput.addEventListener('change', function(e) {
-                if (this.files && this.files[0]) {
-                    const reader = new FileReader();
-                    
-                    reader.onload = function(e) {
-                        uploadedImages.push(e.target.result);
-                        userInput.placeholder = "Image uploaded! Describe what you want...";
-                        userInput.focus();
-                    }
-                    
-                    reader.readAsDataURL(this.files[0]);
-                }
+                handleFileUpload(this.files);
+                this.value = ''; // Reset input to allow selecting same file again
+            });
+            
+            fileUploadInput.addEventListener('change', function(e) {
+                handleFileUpload(this.files);
+                this.value = ''; // Reset input to allow selecting same file again
             });
             
             newChatBtn.addEventListener('click', function() {
@@ -1074,7 +1365,8 @@ public class HelloWorld {
                         </div>
                     </div>
                 `;
-                uploadedImages.length = 0;
+                uploadedFiles.length = 0;
+                filePreviewContainer.innerHTML = '';
                 userInput.placeholder = "Message Claude...";
             });
             
@@ -1245,7 +1537,7 @@ puter.ai.chat("What's the weather in Tokyo?", {
             
             // Add welcome message after a short delay
             setTimeout(() => {
-                addMessageToChat("You can upload images for analysis, ask for code in any programming language, or explore Claude's advanced capabilities using the sidebar features!", false);
+                addMessageToChat("You can upload images or files for analysis using the upload buttons below. Simply click the image or paperclip icon to select multiple files!", false);
             }, 2500);
         });
     </script>

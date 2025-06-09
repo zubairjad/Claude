@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Claude Chat with Puter.js</title>
+    <title>Claude Chat with File Support & History</title>
     <script src="https://js.puter.com/v2/"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
@@ -31,6 +31,7 @@
             --gray-light: #e2e8f0;
             --formula-bg: #f0f7ff;
             --explanation-bg: #fffaf0;
+            --history-bg: #f0f4ff;
         }
         
         body {
@@ -717,6 +718,51 @@
             border-radius: 10px;
         }
         
+        /* CHAT HISTORY STYLES */
+        .history-section {
+            margin-top: 20px;
+            border-top: 1px solid var(--gray-light);
+            padding-top: 20px;
+        }
+        
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .history-item {
+            padding: 12px 15px;
+            background: var(--history-bg);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .history-item:hover {
+            background: #e6ebff;
+        }
+        
+        .history-item.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .history-item i {
+            font-size: 16px;
+        }
+        
+        .history-title {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
         @media (max-width: 900px) {
             .sidebar {
                 display: none;
@@ -765,7 +811,7 @@
                 <div class="logo-icon">
                     <i class="fas fa-robot"></i>
                 </div>
-                <div class="logo-text">Claude Chat with Puter.js</div>
+                <div class="logo-text">Claude Chat Pro</div>
             </div>
             <div class="controls">
                 <div class="control-group">
@@ -816,17 +862,11 @@
                     </button>
                 </div>
                 
-                <div class="sidebar-section">
-                    <h3 class="sidebar-title"><i class="fas fa-cogs"></i> Advanced</h3>
-                    <button class="feature-btn" id="streaming">
-                        <i class="fas fa-stream"></i> Streaming Responses
-                    </button>
-                    <button class="feature-btn" id="long-context">
-                        <i class="fas fa-scroll"></i> Long Context Handling
-                    </button>
-                    <button class="feature-btn" id="custom-instructions">
-                        <i class="fas fa-edit"></i> Custom Instructions
-                    </button>
+                <div class="history-section">
+                    <h3 class="sidebar-title"><i class="fas fa-history"></i> Chat History</h3>
+                    <div class="history-list" id="history-list">
+                        <!-- History items will be added here -->
+                    </div>
                 </div>
             </div>
             
@@ -857,63 +897,6 @@
                                 <li>Switch to Claude Opus for complex reasoning tasks</li>
                             </ul>
                         </div>
-                    </div>
-                </div>
-                
-                <div class="message user-message">
-                    <div class="message-header user-header">
-                        <div class="message-icon">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div>You</div>
-                    </div>
-                    <div class="message-content">
-                        <p>Here are some files I'd like to analyze:</p>
-                        <div class="image-preview">
-                            <div class="file-preview">
-                                <img src="https://images.unsplash.com/photo-1575936123452-b67c3203c357?auto=format&fit=crop&w=200" alt="Sample Image">
-                                <div class="file-info">1.2 MB</div>
-                                <div class="file-name">landscape.jpg</div>
-                                <button class="remove-btn"><i class="fas fa-times"></i></button>
-                            </div>
-                            <div class="file-preview">
-                                <div class="file-icon">
-                                    <i class="fas fa-file-pdf"></i>
-                                    <span>Report.pdf</span>
-                                </div>
-                                <div class="file-info">850 KB</div>
-                                <div class="file-name">report.pdf</div>
-                                <button class="remove-btn"><i class="fas fa-times"></i></button>
-                            </div>
-                            <div class="file-preview">
-                                <div class="file-icon">
-                                    <i class="fas fa-file-excel"></i>
-                                    <span>Data.xlsx</span>
-                                </div>
-                                <div class="file-info">320 KB</div>
-                                <div class="file-name">data.xlsx</div>
-                                <button class="remove-btn"><i class="fas fa-times"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="message ai-message">
-                    <div class="message-header ai-header">
-                        <div class="message-icon">
-                            <i class="fas fa-robot"></i>
-                        </div>
-                        <div>Claude Assistant</div>
-                    </div>
-                    <div class="message-content">
-                        <p>I see you've uploaded 3 files: a landscape image, a PDF report, and an Excel spreadsheet. How can I assist you with these?</p>
-                        <p>I can:</p>
-                        <ul>
-                            <li>Describe the contents of the image</li>
-                            <li>Summarize the PDF document</li>
-                            <li>Analyze data from the Excel file</li>
-                            <li>Compare information across files</li>
-                        </ul>
                     </div>
                 </div>
             </div>
@@ -970,21 +953,141 @@
             const attachBtn = document.getElementById('attach-btn');
             const newChatBtn = document.getElementById('new-chat-btn');
             const filePreviewContainer = document.getElementById('file-preview-container');
-            const uploadedFiles = [];
+            const historyList = document.getElementById('history-list');
             
-            // Focus input on load
-            userInput.focus();
+            // State management
+            const state = {
+                currentConversationId: null,
+                conversations: [],
+                uploadedFiles: []
+            };
             
-            // Initialize Highlight.js
-            hljs.highlightAll();
+            // Initialize
+            initApp();
+            
+            function initApp() {
+                // Load conversations from localStorage
+                loadConversations();
+                
+                // Create first conversation if none exists
+                if (state.conversations.length === 0) {
+                    createNewConversation();
+                } else {
+                    // Load the first conversation
+                    loadConversation(state.conversations[0].id);
+                }
+                
+                // Focus input on load
+                userInput.focus();
+                
+                // Initialize Highlight.js
+                hljs.highlightAll();
+            }
+            
+            // Function to create a new conversation
+            function createNewConversation() {
+                const newId = Date.now().toString();
+                const newConversation = {
+                    id: newId,
+                    title: 'New Conversation',
+                    messages: [],
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                };
+                
+                state.conversations.push(newConversation);
+                state.currentConversationId = newId;
+                
+                // Save to localStorage
+                saveConversations();
+                
+                // Update UI
+                updateHistoryList();
+                renderConversation(newId);
+                
+                return newId;
+            }
+            
+            // Function to load a conversation
+            function loadConversation(conversationId) {
+                state.currentConversationId = conversationId;
+                const conversation = state.conversations.find(c => c.id === conversationId);
+                if (conversation) {
+                    renderConversation(conversationId);
+                }
+            }
+            
+            // Function to render a conversation
+            function renderConversation(conversationId) {
+                const conversation = state.conversations.find(c => c.id === conversationId);
+                if (!conversation) return;
+                
+                // Clear chat container
+                chatContainer.innerHTML = '';
+                
+                // Render each message
+                conversation.messages.forEach(msg => {
+                    if (msg.role === 'user') {
+                        addMessageToChat(msg.content, true, msg.files || []);
+                    } else {
+                        addMessageToChat(msg.content, false);
+                    }
+                });
+                
+                // Scroll to bottom
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                
+                // Update history list active state
+                updateHistoryList();
+            }
+            
+            // Function to save conversations to localStorage
+            function saveConversations() {
+                localStorage.setItem('conversations', JSON.stringify(state.conversations));
+            }
+            
+            // Function to load conversations from localStorage
+            function loadConversations() {
+                const savedConversations = localStorage.getItem('conversations');
+                if (savedConversations) {
+                    state.conversations = JSON.parse(savedConversations);
+                }
+            }
+            
+            // Function to update history list UI
+            function updateHistoryList() {
+                historyList.innerHTML = '';
+                
+                state.conversations.forEach(conversation => {
+                    const isActive = conversation.id === state.currentConversationId;
+                    const historyItem = document.createElement('div');
+                    historyItem.className = `history-item ${isActive ? 'active' : ''}`;
+                    historyItem.innerHTML = `
+                        <i class="fas fa-comments"></i>
+                        <div class="history-title">${conversation.title}</div>
+                    `;
+                    
+                    historyItem.addEventListener('click', () => {
+                        loadConversation(conversation.id);
+                    });
+                    
+                    historyList.appendChild(historyItem);
+                });
+            }
             
             // Function to add message to chat
-            function addMessageToChat(content, isUser = false, images = []) {
+            function addMessageToChat(content, isUser = false, files = []) {
                 const messageDiv = document.createElement('div');
                 messageDiv.classList.add('message');
                 
                 if (isUser) {
                     messageDiv.classList.add('user-message');
+                    
+                    let messageContent = content;
+                    if (!messageContent && files.length > 0) {
+                        messageContent = 'I uploaded some files';
+                    }
+                    
                     messageDiv.innerHTML = `
                         <div class="message-header user-header">
                             <div class="message-icon">
@@ -992,20 +1095,21 @@
                             </div>
                             <div>You</div>
                         </div>
-                        <div class="message-content">${content}</div>
+                        <div class="message-content">
+                            ${messageContent ? `<p>${messageContent}</p>` : ''}
+                        </div>
                     `;
                     
-                    if (images.length > 0) {
-                        const imagePreview = document.createElement('div');
-                        imagePreview.classList.add('image-preview');
+                    if (files.length > 0) {
+                        const filePreview = document.createElement('div');
+                        filePreview.classList.add('image-preview');
                         
-                        images.forEach(imgData => {
-                            const img = document.createElement('img');
-                            img.src = imgData;
-                            imagePreview.appendChild(img);
+                        files.forEach(file => {
+                            const preview = createFilePreviewForMessage(file);
+                            filePreview.appendChild(preview);
                         });
                         
-                        messageDiv.querySelector('.message-content').appendChild(imagePreview);
+                        messageDiv.querySelector('.message-content').appendChild(filePreview);
                     }
                 } else {
                     messageDiv.classList.add('ai-message');
@@ -1022,6 +1126,7 @@
                 
                 chatContainer.appendChild(messageDiv);
                 chatContainer.scrollTop = chatContainer.scrollHeight;
+                return messageDiv;
             }
             
             // Function to process code blocks in responses
@@ -1069,14 +1174,41 @@
             }
             
             // Function to handle streaming response
-            async function handleStreamingResponse(prompt, model, images = []) {
+            async function handleStreamingResponse(prompt, model, files = []) {
                 try {
                     // Show typing indicator
                     typingIndicator.style.display = 'flex';
                     chatContainer.scrollTop = chatContainer.scrollHeight;
                     
+                    // Get current conversation
+                    const conversation = state.conversations.find(c => c.id === state.currentConversationId);
+                    if (!conversation) return;
+                    
                     // Add user message to chat
-                    addMessageToChat(prompt, true, images);
+                    const userMessageElement = addMessageToChat(prompt, true, files);
+                    
+                    // Add to conversation history
+                    conversation.messages.push({
+                        role: 'user',
+                        content: prompt,
+                        files: files.map(file => ({
+                            name: file.name,
+                            type: file.type,
+                            size: file.size
+                        })),
+                        timestamp: new Date()
+                    });
+                    
+                    // Update conversation title if first message
+                    if (conversation.messages.length === 1) {
+                        const firstMessageContent = prompt || 'Files uploaded';
+                        conversation.title = firstMessageContent.substring(0, 30) + (firstMessageContent.length > 30 ? '...' : '');
+                        updateHistoryList();
+                    }
+                    
+                    // Save conversation
+                    conversation.updatedAt = new Date();
+                    saveConversations();
                     
                     // Add a placeholder AI message
                     addMessageToChat('Thinking...', false);
@@ -1089,10 +1221,10 @@
                     // Get selected model
                     const selectedModel = modelSelect.value;
                     
-                    // Add context about images if any were uploaded
+                    // Add context about files if any were uploaded
                     let fullPrompt = prompt;
-                    if (images.length > 0) {
-                        fullPrompt = `The user has uploaded ${images.length} image(s). ${prompt}`;
+                    if (files.length > 0) {
+                        fullPrompt = `The user has uploaded ${files.length} file(s): ${files.map(f => f.name).join(', ')}. ${prompt}`;
                     }
                     
                     const response = await puter.ai.chat(
@@ -1100,10 +1232,12 @@
                         { model: selectedModel, stream: true }
                     );
                     
+                    let aiResponse = '';
                     for await (const part of response) {
                         if (part?.text) {
                             tempDiv.innerHTML += part.text;
                             contentElement.innerHTML = tempDiv.innerHTML;
+                            aiResponse += part.text;
                             chatContainer.scrollTop = chatContainer.scrollHeight;
                         }
                     }
@@ -1111,14 +1245,25 @@
                     // Process code blocks after streaming completes
                     processCodeBlocks(contentElement);
                     
+                    // Add AI response to conversation
+                    conversation.messages.push({
+                        role: 'ai',
+                        content: aiResponse,
+                        timestamp: new Date()
+                    });
+                    
+                    // Save conversation
+                    conversation.updatedAt = new Date();
+                    saveConversations();
+                    
                 } catch (error) {
                     console.error('Error:', error);
                     addMessageToChat("Sorry, I encountered an error processing your request. Please try again.", false);
                 } finally {
                     // Hide typing indicator
                     typingIndicator.style.display = 'none';
-                    // Clear uploaded images
-                    uploadedFiles.length = 0;
+                    // Clear uploaded files
+                    state.uploadedFiles = [];
                     // Clear file previews
                     filePreviewContainer.innerHTML = '';
                 }
@@ -1250,17 +1395,47 @@ public class HelloWorld {
                 // Add remove event
                 const removeBtn = preview.querySelector('.remove-btn');
                 removeBtn.addEventListener('click', () => {
-                    const index = uploadedFiles.findIndex(f => f.name === file.name);
+                    const index = state.uploadedFiles.findIndex(f => f.name === file.name);
                     if (index !== -1) {
-                        uploadedFiles.splice(index, 1);
+                        state.uploadedFiles.splice(index, 1);
                     }
                     preview.remove();
                     
                     // Update placeholder if no files are left
-                    if (uploadedFiles.length === 0) {
+                    if (state.uploadedFiles.length === 0) {
                         userInput.placeholder = "Message Claude...";
                     }
                 });
+                
+                return preview;
+            }
+            
+            // Function to create file preview for message display
+            function createFilePreviewForMessage(file) {
+                const preview = document.createElement('div');
+                preview.classList.add('file-preview');
+                preview.style.width = '80px';
+                preview.style.height = '80px';
+                
+                const fileName = file.name;
+                const fileType = file.type;
+                const fileExtension = fileName.split('.').pop().toLowerCase();
+                
+                if (fileType.startsWith('image/') && file.dataUrl) {
+                    preview.innerHTML = `
+                        <img src="${file.dataUrl}" alt="${fileName}">
+                        <div class="file-name">${fileName}</div>
+                    `;
+                } else {
+                    const iconClass = getFileIcon(fileExtension);
+                    preview.innerHTML = `
+                        <div class="file-icon">
+                            <i class="${iconClass}"></i>
+                            <span>${fileName}</span>
+                        </div>
+                        <div class="file-name">${fileName}</div>
+                    `;
+                }
                 
                 return preview;
             }
@@ -1273,11 +1448,11 @@ public class HelloWorld {
                     const file = files[i];
                     
                     // Check if file already exists
-                    if (uploadedFiles.some(f => f.name === file.name)) {
+                    if (state.uploadedFiles.some(f => f.name === file.name)) {
                         continue;
                     }
                     
-                    uploadedFiles.push(file);
+                    state.uploadedFiles.push(file);
                     
                     if (file.type.startsWith('image/')) {
                         const reader = new FileReader();
@@ -1293,30 +1468,18 @@ public class HelloWorld {
                 }
                 
                 // Update placeholder
-                if (uploadedFiles.length > 0) {
+                if (state.uploadedFiles.length > 0) {
                     userInput.placeholder = "Type your message...";
                 }
             }
             
             // Function to send message
-            function sendMessage() {
+            async function sendMessage() {
                 const message = userInput.value.trim();
-                if (!message && uploadedFiles.length === 0) return;
-                
-                // Collect image data URLs
-                const imageDataUrls = [];
-                for (const file of uploadedFiles) {
-                    if (file.type.startsWith('image/')) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            imageDataUrls.push(e.target.result);
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                }
+                if (!message && state.uploadedFiles.length === 0) return;
                 
                 // Process the message with Claude
-                handleStreamingResponse(message, modelSelect.value, imageDataUrls);
+                await handleStreamingResponse(message, modelSelect.value, [...state.uploadedFiles]);
                 
                 // Clear input and focus
                 userInput.value = '';
@@ -1351,23 +1514,7 @@ public class HelloWorld {
             });
             
             newChatBtn.addEventListener('click', function() {
-                chatContainer.innerHTML = `
-                    <div class="message ai-message">
-                        <div class="message-header ai-header">
-                            <div class="message-icon">
-                                <i class="fas fa-robot"></i>
-                            </div>
-                            <div>Claude Assistant</div>
-                        </div>
-                        <div class="message-content">
-                            <p>Hello! I'm Claude, an AI assistant. How can I help you today?</p>
-                            <p>You can ask me to generate content, write code, analyze data, or help with creative projects!</p>
-                        </div>
-                    </div>
-                `;
-                uploadedFiles.length = 0;
-                filePreviewContainer.innerHTML = '';
-                userInput.placeholder = "Message Claude...";
+                createNewConversation();
             });
             
             // Feature buttons event listeners
